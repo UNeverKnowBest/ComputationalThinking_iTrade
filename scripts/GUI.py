@@ -29,12 +29,12 @@ class RecommendApp:
         ttk.Checkbutton(self.frm, text="Highest in the industry", variable=self.industry_var).grid(column=1, row=6, sticky="w")
         ttk.Checkbutton(self.frm, text="Establishment year    Enter the year below:", variable=self.year_var).grid(column=1, row=7,
                                                                                 sticky="w")
-        entry_year = ttk.Entry(self.frm, width=10)
+        self.entry_year = ttk.Entry(self.frm, width=10)
         ttk.Checkbutton(self.frm, text="ESG criteria", variable=self.esg_var).grid(column=1, row=9, sticky="w")
         ttk.Button(self.frm, text="Search", command=self.stock_search).grid(column=1, row=4, sticky="w")
         label1.grid(column=1, row=1, sticky="w")
         label2.grid(column=1, row=2, sticky="w")
-        entry_year.grid(column=1, row=8, sticky="w")
+        self.entry_year.grid(column=1, row=8, sticky="w")
 
     def create_tree(self, dataframe):
         self.dataframe = dataframe
@@ -56,9 +56,4 @@ class RecommendApp:
         self.year_filter = self.year_var.get()
         self.ESG_filter = self.esg_var.get()
         self.n = self.num_entry.get()
-        self.year_input = slef.entry_year.get()
-
-
-
-
-
+        self.year_input = self.entry_year.get()
