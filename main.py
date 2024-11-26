@@ -118,6 +118,7 @@ def calculate_scores(df):
     # Add the score back to the original dataframe without modifying the original metrics
     df_with_score = df.copy()
     df_with_score = df_with_score.merge(df_normalized[['ID', 'Score']], on='ID')
+    df_with_score = round(df_with_score, 2)
     return df_with_score
 
 

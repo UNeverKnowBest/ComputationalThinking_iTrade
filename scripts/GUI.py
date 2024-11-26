@@ -22,11 +22,11 @@ class RecommendApp:
         self.n = None
         self.year_input = None
         self.dataframe = database
-        self.root.title("Stock Recommendation System")
+        self.root.title("Itrade    Grpup 6")
         self.frm = ttk.Frame(self.root, padding="30 30 30 30")
         self.frm.grid(column=0, row=0, sticky="nwes")
-        self.root.columnconfigure(0, weight=1)
-        self.root.rowconfigure(0, weight=1)
+        self.frm.columnconfigure(0, weight=1)
+        self.frm.rowconfigure(0, weight=1)
         self.industry_var = BooleanVar()
         self.year_var = BooleanVar()
         self.esg_var = BooleanVar()
@@ -64,7 +64,7 @@ class RecommendApp:
         tree["columns"] = list(dataframe.columns)
         tree.column("#0", width=0)
         for col in dataframe.columns:
-            tree.column(col, width=100)
+            tree.column(col, width=70, stretch=NO)
             tree.heading(col, text=col, )
 
         # Remove old data
@@ -77,8 +77,10 @@ class RecommendApp:
 
         # Add a scroll bar
         vsb = ttk.Scrollbar(self.frm, orient="vertical", command=tree.yview)
+        vsa = ttk.Scrollbar(self.frm, orient="horizontal", command=tree.xview)
         vsb.grid(column=2, row=10, sticky='ns')
-        tree.configure(yscrollcommand=vsb.set)
+        vsa.grid(column=1, row=11, sticky='ew')
+        tree.configure(xscrollcommand=vsa.set ,yscrollcommand=vsb.set)
         result_length = len(dataframe)
         if len(dataframe) < self.n:
             message = ("The requirements you set are too strict "
