@@ -2,12 +2,13 @@ from tkinter import *
 from tkinter import ttk
 from tkinter import messagebox
 
+
 class RecommendApp:
     def __init__(self, root, database, stock_recommend_func):
         self.root = root
         self.stock_recommend_func = stock_recommend_func
         self.industry_filter = None
-        self.year_filter =  None
+        self.year_filter = None
         self.ESG_filter = None
         self.start = 0
         self.n = None
@@ -18,24 +19,30 @@ class RecommendApp:
         self.frm.grid(column=0, row=0, sticky="nwes")
         self.root.columnconfigure(0, weight=1)
         self.root.rowconfigure(0, weight=1)
-        label1 = ttk.Label(self.frm, text="Enter how many stocks do you want the system to recommend:")
-        label2 = ttk.Label(self.frm, text="(Please enter a number greater than 0 and less than 100.)")
-        self.num_entry = ttk.Entry(self.frm, width=10)
-        self.num_entry.grid(column=1, row=3, sticky="w")
-        ttk.Label(self.frm, text="Please check the box for the preferences you want to set:").grid(column=1, row=5,
-                                                                                              sticky="w")
         self.industry_var = BooleanVar()
         self.year_var = BooleanVar()
         self.esg_var = BooleanVar()
-        ttk.Checkbutton(self.frm, text="Highest in the industry", variable=self.industry_var).grid(column=1, row=6, sticky="w")
-        ttk.Checkbutton(self.frm, text="Establishment year    Enter the year below:", variable=self.year_var).grid(column=1, row=7,
-                                                                                sticky="w")
+
+        label1 = ttk.Label(self.frm, text="Enter how many stocks do you want the system to recommend:")
+        label2 = ttk.Label(self.frm, text="(Please enter a number greater than 0 and less than 100.)")
+        self.num_entry = ttk.Entry(self.frm, width=10)
+        label3 = ttk.Label(self.frm, text="Please check the box for the preferences you want to set:")
+        check_button_1 = ttk.Checkbutton(self.frm, text="Highest in the industry", variable=self.industry_var)
+        check_button_2 = ttk.Checkbutton(self.frm, text="Establishment year    Enter the year below:",
+                                         variable=self.year_var)
         self.entry_year = ttk.Entry(self.frm, width=10)
-        ttk.Checkbutton(self.frm, text="ESG criteria", variable=self.esg_var).grid(column=1, row=9, sticky="w")
-        ttk.Button(self.frm, text="Search", command=self.stock_search).grid(column=1, row=4, sticky="w")
+        check_button_3 = ttk.Checkbutton(self.frm, text="ESG criteria", variable=self.esg_var)
+        button_1 = ttk.Button(self.frm, text="Search", command=self.stock_search)
+
         label1.grid(column=1, row=1, sticky="w")
         label2.grid(column=1, row=2, sticky="w")
+        self.num_entry.grid(column=1, row=3, sticky="w")
+        button_1.grid(column=1, row=4, sticky="w")
+        label3.grid(column=1, row=5, sticky="w")
+        check_button_1.grid(column=1, row=6, sticky="w")
+        check_button_2.grid(column=1, row=7, sticky="w")
         self.entry_year.grid(column=1, row=8, sticky="w")
+        check_button_3.grid(column=1, row=9, sticky="w")
 
     def create_tree(self, dataframe):
         tree = ttk.Treeview(self.frm)
@@ -46,7 +53,7 @@ class RecommendApp:
         tree.column("#0", width=0)
 
         for col in dataframe.columns:
-            tree.column(col,  width=100)
+            tree.column(col, width=100)
             tree.heading(col, text=col, )
 
         # 清除旧数据
