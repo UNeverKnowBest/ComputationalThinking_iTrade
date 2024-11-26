@@ -1,17 +1,18 @@
 from tkinter import *
 from tkinter import ttk
-
+from tkinter import messagebox
 
 class RecommendApp:
-    def __init__(self, root):
+    def __init__(self, root, database, stock_recommend_func):
         self.root = root
+        self.stock_recommend_func = stock_recommend_func
         self.industry_filter = None
         self.year_filter =  None
         self.ESG_filter = None
         self.start = 0
         self.n = None
         self.year_input = None
-        self.dataframe = None
+        self.dataframe = database
         self.root.title("Stock Recommendation System")
         self.frm = ttk.Frame(self.root, padding="30 30 30 30")
         self.frm.grid(column=0, row=0, sticky="nwes")
@@ -37,23 +38,46 @@ class RecommendApp:
         self.entry_year.grid(column=1, row=8, sticky="w")
 
     def create_tree(self, dataframe):
-        self.dataframe = dataframe
-        tree = ttk.Treeview(self.frm, columns=list(dataframe.columns))
+        tree = ttk.Treeview(self.frm)
+        tree.grid(column=1, row=10, sticky='nsew')
+
+        # 定义列
+        tree["columns"] = list(dataframe.columns)
         tree.column("#0", width=0)
-        tree.grid(column=1, row=10)
+
         for col in dataframe.columns:
-            tree.column(col)
-            tree.heading(col)
-            for i in tree.get_children():
-                tree.delete(i)
-                # 向树中添加新行
-            for row in dataframe.to_records(index=False):
-                tree.insert("", "end", values=row)
+            tree.column(col,  width=100)
+            tree.heading(col, text=col, )
+
+        # 清除旧数据
+        for i in tree.get_children():
+            tree.delete(i)
+
+        # 插入新数据
+        for index, row in dataframe.iterrows():
+            tree.insert("", "end", values=list(row))
+
+        # 添加滚动条（如果需要）
+        vsb = ttk.Scrollbar(self.frm, orient="vertical", command=tree.yview)
+        vsb.grid(column=2, row=10, sticky='ns')
+        tree.configure(yscrollcommand=vsb.set)
 
     def stock_search(self):
         self.start = 1
         self.industry_filter = self.industry_var.get()
         self.year_filter = self.year_var.get()
         self.ESG_filter = self.esg_var.get()
-        self.n = self.num_entry.get()
-        self.year_input = self.entry_year.get()
+        try:
+            self.n = int(self.num_entry.get())
+        except ValueError:
+            messagebox.showerror("输入错误", "请输入一个有效的整数!")
+            return
+
+        try:
+            self.year_input = int(self.entry_year.get())
+        except ValueError:
+            messagebox.showerror("输入错误", "请输入一个有效的整数!")
+            return
+
+        df = self.stock_recommend_func(self, self.dataframe)
+        self.create_tree(df)
