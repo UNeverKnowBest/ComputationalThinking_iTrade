@@ -6,7 +6,46 @@ from sklearn.preprocessing import MinMaxScaler
 
 from scripts.GUI import RecommendApp
 
+def stock_recommend_by_industry(df, n, sort_by):
+    """
+    When the 'industry' checkbox is selected, show the same number of max values for each industry type
+    :param df: original dataframe
+    :param n: the number of recommendations
+    :param sort_by: sort based on which value
+    :return: dataframe
+    """
 
+    df_list = []
+
+    industries_no_mining = ['agriculture', 'clothing', 'construction',
+                            'electronics', 'energy', 'entertainment',
+                            'mining']
+
+    # Make sure sub n of per type have an int value and calculate the reminder
+    n_per_industry = n // 7
+    n_leave = n - n_per_industry * 7
+
+    for industry in industries_no_mining:
+        # Use the reminder to assign to former industry type to fulfill the requirement n
+        if n_leave > 0:
+            df_i = df[df["Industry"] == industry].sort_values(by=sort_by, ascending=False).head(n_per_industry + 1)
+            n_leave -= 1
+        else:
+            # When it meets the user's requirement n
+            df_i = df[df["Industry"] == industry].sort_values(by=sort_by, ascending=False).head(n_per_industry)
+        df_list.append(df_i)
+    df = pd.concat(df_list)
+    return df
+
+def stock_recommend_by_year(df, year):
+    """Return the dataframe filtered by year"""
+    df = df[(df["FoundationYear"] >= year)]
+    return df
+
+def stock_recommend_by_ESG(df):
+    """Return the dataframe calculated by entropy algorithm"""
+    df = calculate_scores(df)
+    return df
 def stock_recommend(app, df):
     """
     Return the data by using pandas dataframe filter
@@ -21,50 +60,18 @@ def stock_recommend(app, df):
     # If the user has checked the checkbox "year", execute the year filter algorithm to reduce the number of data
     # It should be processed firstly to reduce the computational time
     if app.year_filter:
-        df = df[(df["FoundationYear"] >= app.year_input)]
+        df = stock_recommend_by_year(df, app.year_input)
 
-    # If user has only checked the checkbox "industry", execute the year filter algorithm
-    if app.industry_filter and not app.ESG_filter:
-        df_list = []
-
-        # When the 'industry' checkbox is selected, show the same number of max values for each industry type
-        industries_no_mining = ['agriculture', 'clothing', 'construction', 'electronics', 'energy', 'entertainment']
-        n_per_industry = app.n // 7
-        for industry in industries_no_mining:
-            df_i = df[df["Industry"] == industry].sort_values(by=sort_by, ascending=False).head(n_per_industry)
-            df_list.append(df_i)
-
-        # Calculate the remainder and fill up to n items using data from the 'mining' category
-        n_leave = app.n - n_per_industry * 6
-        df_i = df[df["Industry"] == "mining"].sort_values(by=sort_by, ascending=False).head(n_leave)
-        df_list.append(df_i)
-        df = pd.concat(df_list)
-
-    # Use the same algorithm for processing when both 'ESG' and 'industry' are selected,
-    # but first calculate the score based on the entropy weighting method
-    elif app.industry_filter and app.ESG_filter:
+    if app.ESG_filter:
         sort_by = ["Score"]
-        df_list = []
+        df = stock_recommend_by_ESG(df)
 
-        # Calculate the score based on the entropy weighting method
-        df = calculate_scores(df)
-        industries_no_mining = ['agriculture', 'clothing', 'construction', 'electronics', 'energy', 'entertainment']
-        n_per_industry = app.n // 7
-        for industry in industries_no_mining:
-            df_i = df[df["Industry"] == industry].sort_values(by=sort_by, ascending=False).head(n_per_industry)
-            df_list.append(df_i)
-        n_leave = app.n - n_per_industry * 6
-        df_i = df[df["Industry"] == "mining"].sort_values(by=sort_by, ascending=False).head(n_leave)
-        df_list.append(df_i)
-        df = pd.concat(df_list)
-
-    # If only the ESG is checked, just calculate the entropy score and rank it based on entropy score
-    elif not app.industry_filter and app.ESG_filter:
-        sort_by = ["Score"]
-        df = calculate_scores(df)
-        df = df.sort_values(by=sort_by, ascending=False).head(app.n)
-    # If no box is checked, raking the data based on performance for high to low
+    # Then industry recommend's sort is different with other, so we split the sort algorithm into 2 parts.
+    if app.industry_filter:
+        # Industry sort type
+        df = stock_recommend_by_industry(df, app.n, sort_by)
     else:
+        # Ordinary type
         df = df.sort_values(by=sort_by, ascending=False).head(app.n)
 
     return df
@@ -73,7 +80,7 @@ def stock_recommend(app, df):
 def calculate_scores(df):
     """
     Calculate the scores based on entropy
-    :param df:
+    :param df:  Original dataframe
     :return: The changed dataframe which is added a score colum
     """
 
