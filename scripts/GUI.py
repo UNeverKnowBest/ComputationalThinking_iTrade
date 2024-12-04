@@ -39,6 +39,7 @@ class RecommendApp:
         check_button_1 = ttk.Checkbutton(self.frm, text="Highest in the industry", variable=self.industry_var)
         check_button_2 = ttk.Checkbutton(self.frm, text="Establishment year    Enter the year below:",
                                          variable=self.year_var)
+
         self.entry_year = ttk.Entry(self.frm, width=10)
         check_button_3 = ttk.Checkbutton(self.frm, text="ESG criteria", variable=self.esg_var)
         button_1 = ttk.Button(self.frm, text="Search", command=self.stock_search)

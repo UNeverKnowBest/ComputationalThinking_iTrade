@@ -39,7 +39,7 @@ def stock_recommend_by_industry(df, n, sort_by):
 
 def stock_recommend_by_year(df, year):
     """Return the dataframe filtered by year"""
-    df = df[(df["FoundationYear"] >= year)]
+    df = df[(df["FoundationYear"] <= year)]
     return df
 
 def stock_recommend_by_ESG(df):
