@@ -1,5 +1,5 @@
 import tkinter as tk
-
+import sys, os
 import numpy as np
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
@@ -123,7 +123,12 @@ def calculate_scores(df):
 
 
 # Read data and initial the GUI
-database = pd.read_csv("data/stocks.csv")
+if hasattr(sys, '_MEIPASS'):
+    data_path = os.path.join(sys._MEIPASS, 'data', 'stocks.csv')
+else:
+    data_path = os.path.join('data', 'stocks.csv')
+
+database = pd.read_csv(data_path)
 root = tk.Tk()
 application = RecommendApp(root, database, stock_recommend)
 root.mainloop()
